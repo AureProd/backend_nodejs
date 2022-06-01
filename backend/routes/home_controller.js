@@ -4,7 +4,7 @@
  * 
  * @returns {string}
  */
-function homePage(res, req) {
+function homePage(req, res, next) {
     res.send("Welcome to the Backend");
 }
 
