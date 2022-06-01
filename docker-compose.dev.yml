@@ -1,0 +1,36 @@
+version: '3'
+services:
+  container_bdd:
+    container_name: container_bdd
+    image: "mariadb:10.8.3"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - ./database:/var/lib/mysql/
+
+  container_backend:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile.dev
+    image: backend_template:backend_dev
+    container_name: container_backend
+    volumes:
+      - ./backend/functions:/usr/src/app/functions
+      - ./backend/routes:/usr/src/app/routes
+      - ./backend/app.js:/usr/src/app/app.js
+    environment:
+      BDD_HOST: container_bdd
+      BDD_PORT: ${MYSQL_PORT}
+      BDD_DATABASE: ${MYSQL_DATABASE}
+      BDD_USERNAME: ${MYSQL_USERNAME}
+      BDD_PASSWORD: ${MYSQL_PASSWORD}
+      TOKEN_PASSWORD: ${TOKEN_PASSWORD}
+    ports:
+      - "${BACKEND_PORT}:3000"
+    depends_on:
+      - container_bdd
