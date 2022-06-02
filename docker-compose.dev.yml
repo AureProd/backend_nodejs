@@ -11,7 +11,7 @@ services:
     ports:
       - "${MYSQL_PORT}:3306"
     volumes:
-      - ./database:/var/lib/mysql/
+      - volume_database_dev:/var/lib/mysql/
 
   container_backend_dev:
     build:
@@ -34,3 +34,6 @@ services:
       - "${BACKEND_PORT}:3000"
     depends_on:
       - container_bdd_dev
+
+volumes:
+  volume_database_dev:
