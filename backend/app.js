@@ -1,7 +1,11 @@
 const http = require('http');
 const express = require('express');
 const router = require('./functions/router');
-const bdd = require('./functions/bdd_controller');
+const mongoose = require('mongoose');
+
+mongoose.connect(`mongodb://${process.env.BDD_USERNAME}:${process.env.BDD_PASSWORD}@${process.env.BDD_HOST}:${process.env.BDD_PORT}`)
+    .then(() => console.log("Connection à la BDD réussie"))
+    .catch(err => console.log(err));
 
 const port = 3000;
 

@@ -1,17 +1,15 @@
 version: '3'
 services:
   container_bdd_prod:
-    container_name: container_bdd_prod
-    image: "mariadb:10.8.3"
+    image: "mongo:5.0.8"
+    container_name: 'container_bdd_prod'
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USERNAME}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    ports:
-      - "${MYSQL_PORT}:3306"
+      MONGO_INITDB_ROOT_USERNAME: ${BDD_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${BDD_PASSWORD}
     volumes:
-      - volume_database_prod:/var/lib/mysql/
+      - volume_database_prod:/data/db
+    ports:
+      - '${BDD_PORT}:27017'
 
   container_backend_prod:
     build:
@@ -21,10 +19,9 @@ services:
     container_name: container_backend_prod
     environment:
       BDD_HOST: container_bdd_prod
-      BDD_PORT: ${MYSQL_PORT}
-      BDD_DATABASE: ${MYSQL_DATABASE}
-      BDD_USERNAME: ${MYSQL_USERNAME}
-      BDD_PASSWORD: ${MYSQL_PASSWORD}
+      BDD_PORT: ${BDD_PORT}
+      BDD_USERNAME: ${BDD_USERNAME}
+      BDD_PASSWORD: ${BDD_PASSWORD}
       TOKEN_PASSWORD: ${TOKEN_PASSWORD}
     ports:
       - "${BACKEND_PORT}:3000"
