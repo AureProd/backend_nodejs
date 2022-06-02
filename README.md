@@ -1,6 +1,6 @@
-# backend_nodejs_template
+# Template de Backend en nodejs
 
-Template pour faire des backend en nodejs express
+Template pour faire des backend en nodejs (express)
 
 ## Prérequis
 
