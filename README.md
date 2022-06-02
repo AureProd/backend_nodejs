@@ -23,19 +23,19 @@ $ docker-compose --project-name backend_template_prod --env-file .env -f docker-
 Pour démarer le container
 
 ```bash
-$ docker-compose --project-name backend_template_prod start
+$ docker-compose --project-name backend_template_prod --env-file .env -f docker-compose.prod.yml start
 ```
 
 Pour arrêter le container
 
 ```bash
-$ docker-compose --project-name backend_template_prod stop
+$ docker-compose --project-name backend_template_prod --env-file .env -f docker-compose.prod.yml stop
 ```
 
 Pour détruire le container
 
 ```bash
-$ docker-compose --project-name backend_template_prod down
+$ docker-compose --project-name backend_template_prod --env-file .env -f docker-compose.prod.yml down
 ```
 
 ### Commandes pour le développement
@@ -49,17 +49,17 @@ $ docker-compose --project-name backend_template_dev --env-file .env -f docker-c
 Pour démarer le container
 
 ```bash
-$ docker-compose --project-name backend_template_dev start
+$ docker-compose --project-name backend_template_dev --env-file .env -f docker-compose.dev.yml start
 ```
 
 Pour arrêter le container
 
 ```bash
-$ docker-compose --project-name backend_template_dev stop
+$ docker-compose --project-name backend_template_dev --env-file .env -f docker-compose.dev.yml stop
 ```
 
 Pour détruire le container
 
 ```bash
-$ docker-compose --project-name backend_template_dev down
+$ docker-compose --project-name backend_template_dev --env-file .env -f docker-compose.dev.yml down
 ```
