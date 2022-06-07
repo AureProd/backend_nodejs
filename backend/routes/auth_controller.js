@@ -3,35 +3,29 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mailController = require("../functions/mail_controller");
 
-/**
- * Function to return error with delay to avoid bruteforce attack and compte listing
- * 
- * @param {Date} time 
- * @param {Number} wait_time 
- * @param {Number} statusCode 
- * @param {String} errorMessage 
- */
-function loginDelayError(time) {
-    const wait_time = 3 * 1000;
-
-    let timeDiff = wait_time - (new Date() - time);
-    if (timeDiff < 0) res.status(500).send("Une erreur est survenue");
-
-    setTimeout(() => res.status(400).send("Informations incorrectes"), timeDiff) 
-}
-
 function loginRequest(req, res, next) {
     let time = new Date();
 
-    if(!req.body.email || !req.body.password) loginDelayError(time);
+    function loginDelayError() {
+        const wait_time = 3 * 1000;
+
+        let timeDiff = wait_time - (new Date() - time);
+        if (timeDiff < 0) res.status(500).send("Une erreur est survenue");
+
+        setTimeout(() => res.status(400).send("Informations incorrectes"), timeDiff) 
+    }
+
+    if(!req.body.email || !req.body.password) loginDelayError();
     else {
-        userModel.findOne({email: req.body.email}, function(err, user) {
+        let email = req.body.email;
+        let password = req.body.password;
+        userModel.findOne({email: email}, function(err, user) {
             if (err) res.status(500).send("Une erreur est survenue");
-            else if (!user) loginDelayError(time);
+            else if (!user) loginDelayError();
             else {
-                bcrypt.compare(req.body.password, user.password, function(err, result) {
+                bcrypt.compare(password, user.password, function(err, result) {
                     if (err) res.status(500).send("Une erreur est survenue");
-                    else if (!result) loginDelayError(time);
+                    else if (!result) loginDelayError();
                     else {
                         req.user = user;
                         next();
@@ -45,14 +39,17 @@ function loginRequest(req, res, next) {
 function registerRequest(req, res, next) {
    if (!req.body.username || !req.body.email || !req.body.password) res.status(400).send("Informations incorrectes");
     else {
-        userModel.findOne({username: req.body.username, email: req.body.email}, function(err, user) {
+        let username = req.body.username;
+        let email = req.body.email;
+        let password = req.body.password;
+        userModel.findOne({username: username, email: email}, function(err, user) {
             if(err) res.status(500).send("Une erreur est survenue");
             else if(user) res.status(400).send("Informations incorrectes");
             else {
                 userModel.create({
-                    username: req.body.username,
-                    email: req.body.email,
-                    password: bcrypt.hashSync(req.body.password, 10)
+                    username: username,
+                    email: email,
+                    password: bcrypt.hashSync(password, 10)
                 }, function(err, user) {
                     if(err) res.status(500).send("Une erreur est survenue");
                     else {
@@ -71,7 +68,7 @@ function sendMailVerifEmail(req, res, next) {
     else {
         let emailToken = jwt.sign({
             id: req.user._id
-        }, process.env.TOKEN_PASSWORD, {
+        }, process.env.TOKEN_EMAIL_PASSWORD, {
             algorithm: 'HS384',
             expiresIn: "1h"
         });
@@ -91,4 +88,76 @@ function sendMailVerifEmail(req, res, next) {
     }
 }
 
-module.exports = { registerRequest, loginRequest, sendMailVerifEmail };
+function verifEmail(req, res, next) {
+    if (!req.body.token) res.status(400).send("Informations incorrectes");
+    else {
+        let token = req.body.token;
+        jwt.verify(token, process.env.TOKEN_EMAIL_PASSWORD, function(err, decoded) {
+            if (err) res.status(400).send("Token invalide");
+            else {
+                let userId = decoded.id;
+                userModel.findById(userId, function(err, user) {
+                    if (err) res.status(500).send("Une erreur est survenue");
+                    else if (!user) res.status(400).send("Token invalide");
+                    else {
+                        user.email_verified = true;
+                        user.save();
+                        
+                        res.status(200).send("Email vérifié");
+                    }
+                });
+            }
+        });
+    }
+}
+
+function sendMailLostPassword(req, res, next) {
+    if(!req.user) res.status(400).send("Informations incorrectes");
+    else {
+        let passwordToken = jwt.sign({
+            id: req.user._id
+        }, process.env.TOKEN_EMAIL_PASSWORD, {
+            algorithm: 'HS384',
+            expiresIn: "1h"
+        });
+
+        mailController.sendMail(
+            "Changer votre mot de passe", 
+            `
+                <p>Veuillez changer votre mot de passe en cliquant sur le bouton suivant : <a href="${process.env.FRONTEND_lOST_PASSWORD_URL.replace("<TOKEN>", passwordToken)}" target="_blank">Changer votre mot de passe</a></p>
+                <p>Token : ${passwordToken}</p>
+                <br>
+                <p>Si vous n'avez pas demandé ce changement de mot de passe, veuillez ignorer ce mail.</p>
+            `,
+            req.user.email
+        );
+
+        res.status(200).send("Email envoyé pour changer de mot de passe"); 
+    }
+}
+
+function changePassword(req, res, next) {
+    if (!req.body.token || !req.body.password) res.status(400).send("Informations incorrectes");
+    else {
+        let token = req.body.token;
+        let newPassword = req.body.password;
+        jwt.verify(token, process.env.TOKEN_EMAIL_PASSWORD, function(err, decoded) {
+            if (err) res.status(400).send("Token invalide");
+            else {
+                let userId = decoded.id;
+                userModel.findById(userId, function(err, user) {
+                    if (err) res.status(500).send("Une erreur est survenue");
+                    else if (!user) res.status(400).send("Token invalide");
+                    else {
+                        user.password = bcrypt.hashSync(newPassword, 10);
+                        user.save();
+                        
+                        res.status(200).send("Password correctement changé");
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = { registerRequest, loginRequest, sendMailVerifEmail, verifEmail, sendMailLostPassword, changePassword };

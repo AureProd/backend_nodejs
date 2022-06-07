@@ -4,7 +4,8 @@ function sendUserInformations(req, res, next) {
     res.status(200).json({
         username: req.user.username,
         email: req.user.email,
-        access_rights: req.user.access_rights
+        access_rights: req.user.access_rights,
+        email_verified: req.user.email_verified
     });
 }
 
