@@ -63,3 +63,9 @@ Pour détruire le container
 ```bash
 $ docker-compose --project-name backend_template_dev --env-file .env -f docker-compose.dev.yml down
 ```
+
+Pour voir les logs du backend
+
+```bash
+$ docker logs container_backend_dev -f
+```
