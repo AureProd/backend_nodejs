@@ -63,8 +63,7 @@ function registerRequest(req, res, next) {
 }
 
 function sendMailVerifEmail(req, res, next) {
-    if(!req.user || !req.user.actif) res.status(400).send("Informations incorrectes");
-    else if(req.user.email_verified) next();
+    if(req.user.email_verified) next();
     else {
         let emailToken = jwt.sign({
             id: req.user._id
@@ -117,31 +116,28 @@ function verifEmail(req, res, next) {
 }
 
 function sendMailLostPassword(req, res, next) {
-    if(!req.user || !req.user.actif) res.status(400).send("Informations incorrectes");
-    else {
-        let passwordToken = jwt.sign({
-            id: req.user._id
-        }, process.env.TOKEN_EMAIL_PASSWORD, {
-            algorithm: 'HS384',
-            expiresIn: "1h"
-        });
+    let passwordToken = jwt.sign({
+        id: req.user._id
+    }, process.env.TOKEN_EMAIL_PASSWORD, {
+        algorithm: 'HS384',
+        expiresIn: "1h"
+    });
 
-        req.user.active_password_token = passwordToken;
-        req.user.save();
+    req.user.active_password_token = passwordToken;
+    req.user.save();
 
-        mailController.sendMail(
-            "Changer votre mot de passe", 
-            `
+    mailController.sendMail(
+        "Changer votre mot de passe",
+        `
                 <p>Veuillez changer votre mot de passe en cliquant sur le bouton suivant : <a href="${process.env.FRONTEND_lOST_PASSWORD_URL.replace("<TOKEN>", passwordToken)}" target="_blank">Changer votre mot de passe</a></p>
                 <p>Token : ${passwordToken}</p>
                 <br>
                 <p>Si vous n'avez pas demandé ce changement de mot de passe, veuillez ignorer ce mail.</p>
             `,
-            req.user.email
-        );
+        req.user.email
+    );
 
-        res.status(200).send("Email envoyé pour changer de mot de passe"); 
-    }
+    res.status(200).send("Email envoyé pour changer de mot de passe");
 }
 
 function changePassword(req, res, next) {

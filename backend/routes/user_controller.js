@@ -18,7 +18,7 @@ function sendUserToken(req, res, next) {
             expiresIn: "1h"
         }),
         email_verified: req.user.email_verified
-    }); 
+    });
 }
 
 module.exports = { sendUserInformations, sendUserToken };
