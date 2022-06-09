@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 const userModel = require("../schemas/user_model");
 
 function authUser(req, res, next) {
