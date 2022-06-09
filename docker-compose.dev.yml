@@ -20,7 +20,6 @@ services:
     volumes:
       - ./backend/routes:/usr/src/app/routes
       - ./backend/functions:/usr/src/app/functions
-      - ./backend/errors:/usr/src/app/errors
       - ./backend/schemas:/usr/src/app/schemas
       - ./backend/app.js:/usr/src/app/app.js
     environment:

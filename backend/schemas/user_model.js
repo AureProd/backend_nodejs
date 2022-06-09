@@ -9,6 +9,8 @@ const userSchema = mongoose.Schema({
     created_date: {type: Date, required: true, default: Date.now},
     actif: {type: Boolean, required: true, default: true},
     email_verified: {type: Boolean, required: true, default: false},
+    active_email_token: {type: String, required: false, default: null},
+    active_password_token: {type: String, required: false, default: null},
 });
 
 const userModel = mongoose.model('user', userSchema);

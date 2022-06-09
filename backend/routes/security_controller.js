@@ -12,7 +12,7 @@ function authUser(req, res, next) {
                 let userId = decoded.id;
                 userModel.findById(userId, function(err, user) {
                     if (err) res.status(500).send("Une erreur est survenue");
-                    else if (!user) res.status(401).send("Token invalide");
+                    else if (!user || !user.actif) res.status(401).send("Token invalide");
                     else {
                         req.user = user;
                         next();
@@ -24,7 +24,7 @@ function authUser(req, res, next) {
 }
 
 function userIsAdmin(req, res, next) {
-    if (req.user && req.user.access_rights && req.user.access_rights == "ADMIN") next();
+    if (req.user && req.user.actif && req.user.access_rights && (req.user.access_rights === "ADMIN")) next();
     else res.status(401).send("L'utilisateur n'est pas administrateur");
 }
 
