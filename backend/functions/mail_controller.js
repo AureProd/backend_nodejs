@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 /**
@@ -10,7 +9,7 @@ const nodemailer = require('nodemailer');
  * @returns {void} 
  */
 function sendMail(objet, contenu, emailTarget) {
-    var transporter = nodemailer.createTransport({
+    let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
             user: process.env.GMAIL_ACCOUNT_EMAIL,
@@ -23,7 +22,7 @@ function sendMail(objet, contenu, emailTarget) {
         to: emailTarget,
         subject: objet,
         html: contenu
-    }, function(error, info){
+    }, function(error){
         if (error) console.log(error);
         else console.log(`Email sent to email '${emailTarget}'`);
     });

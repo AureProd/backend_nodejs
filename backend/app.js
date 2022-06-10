@@ -13,7 +13,7 @@ const app = express();
 const server = http.Server(app);
 
 app.use(express.json());
-app.use("/api", router);
+app.use("/", router);
 
 server.listen(port);
 
