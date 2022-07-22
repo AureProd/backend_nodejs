@@ -18,10 +18,8 @@ services:
     image: backend_template:backend_dev
     container_name: container_backend_dev
     volumes:
-      - ./backend/routes:/usr/src/app/routes
-      - ./backend/functions:/usr/src/app/functions
-      - ./backend/schemas:/usr/src/app/schemas
-      - ./backend/app.js:/usr/src/app/app.js
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules/
     environment:
       BDD_HOST: container_bdd_dev
       BDD_PORT: ${BDD_PORT}
